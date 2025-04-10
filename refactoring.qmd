@@ -144,7 +144,7 @@ int main(){
 
 + Sensors as direct globals in main
 
-+ Testing toolchain is evolved along with the system.
++ Testing toolchain is evolved along with the system
 :::
 
 
@@ -474,7 +474,7 @@ static_assert((acmu::config::type_limits::max_num_of_keys +
 + Compile time checks for size of arrays, number of element in each arrays...
 ::: 
 
-## Configuration change {.stretch .r-stack .center}
+## Configuration change {.stretch .r-stack .center visibility="hidden"}
 
 v1.12-58-g080c673 --- main.cpp
 
@@ -619,7 +619,7 @@ void update(acmu::config::Handler *conf, acmu::USB *usb, const KEY &key,
 
 
 
-## Parameter request {.stretch .r-stack .center}
+## Parameter request {.stretch .r-stack .center visibility="hidden"}
 v1.12-58-g080c673 --- ./src/config_handler.cpp
 
 ::: {.fragment}
@@ -738,7 +738,7 @@ auto utility::float_to_string(const float value) -> std::string {
 ## Take aways
 
 :::: incremental
-- Data tables by type *vs.* all data in one table
+- Data tables with key & value pairs  *vs.* all data in one table 
     - less conditionals and branching
     - generalized workflow is easier
 - Templates, overaloads, algorithms, lambads
@@ -748,7 +748,7 @@ auto utility::float_to_string(const float value) -> std::string {
 - Size vs. speed vs. maintainability
 - Compiler support via **static_asserts** and **-Werror=switch**
 - CppCheck & clang-tidy 
-- automatic refactorings with clang-tidy
+- Automatic refactorings with clang-tidy
 ::::
 
 ## References {.smalllist}

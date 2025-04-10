@@ -318,7 +318,7 @@
 <li><p>Sensor configuration via comments</p></li>
 <li><p>Leaking system information - actual values of the votage divided</p></li>
 <li><p>Sensors as direct globals in main</p></li>
-<li><p>Testing toolchain is evolved along with the system.</p></li>
+<li><p>Testing toolchain is evolved along with the system</p></li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -646,48 +646,7 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="configuration-change" class="slide level2 stretch r-stack center">
-<h2>Configuration change</h2>
-<p>v1.12-58-g080c673 — main.cpp</p>
-<div class="fragment">
-<div class="sourceCode" id="cb12" data-code-line-numbers="1-20|2|5-7|9|4,14|16"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb12-1"><a href=""></a></span>
-<span id="cb12-2"><a href=""></a>acmu<span class="op">::</span>config<span class="op">::</span>Handler new_conf<span class="op">{&amp;</span>defaults<span class="op">};</span></span>
-<span id="cb12-3"><a href=""></a></span>
-<span id="cb12-4"><a href=""></a><span class="op">{</span></span>
-<span id="cb12-5"><a href=""></a>    FileHandler sysconfig_file<span class="op">{</span>acmu<span class="op">::</span>constants<span class="op">::</span>config_file_path<span class="op">,</span></span>
-<span id="cb12-6"><a href=""></a>                               <span class="op">&amp;</span>sdWrapper<span class="op">,</span> <span class="op">&amp;</span>sd_lock<span class="op">};</span></span>
-<span id="cb12-7"><a href=""></a>    <span class="kw">auto</span> config_content <span class="op">=</span> sysconfig_file<span class="op">.</span>read_cfile<span class="op">();</span></span>
-<span id="cb12-8"><a href=""></a></span>
-<span id="cb12-9"><a href=""></a>    new_conf<span class="op">.</span>update<span class="op">(</span>config_content<span class="op">);</span></span>
-<span id="cb12-10"><a href=""></a></span>
-<span id="cb12-11"><a href=""></a>    <span class="bu">std::</span>stringstream stream<span class="op">{</span>acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_all_config<span class="op">()};</span></span>
-<span id="cb12-12"><a href=""></a>    <span class="cf">for</span> <span class="op">(</span><span class="bu">std::</span>string line<span class="op">;</span> <span class="bu">std::</span>getline<span class="op">(</span>stream<span class="op">,</span> line<span class="op">);)</span></span>
-<span id="cb12-13"><a href=""></a>        systemlog<span class="op">.</span>append<span class="op">(</span>line<span class="op">);</span></span>
-<span id="cb12-14"><a href=""></a><span class="op">}</span></span>
-<span id="cb12-15"><a href=""></a></span>
-<span id="cb12-16"><a href=""></a>init_sensors<span class="op">(</span>defaults<span class="op">,</span> sensor_list<span class="op">);</span></span>
-<span id="cb12-17"><a href=""></a></span>
-<span id="cb12-18"><a href=""></a><span class="cf">while</span><span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span> <span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<aside class="notes">
-<ul>
-<li><p>Actual config file usage</p></li>
-<li><p>file content reading and usage is separated</p></li>
-<li><p>Scoped operation - cleaning up FileHandler with RAII</p></li>
-<li><p>Sensors initialization in a function call, based on updated global variables</p></li>
-</ul>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
+
 <section id="configuration-change-via-string" class="slide level2 stretch r-stack center">
 <h2>Configuration change — via string</h2>
 <p>v1.12-58-g080c673 — ./src/config_handler.cpp</p>
@@ -795,41 +754,7 @@
 <span id="cb15-6"><a href=""></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="parameter-request" class="slide level2 stretch r-stack center">
-<h2>Parameter request</h2>
-<p>v1.12-58-g080c673 — ./src/config_handler.cpp</p>
-<div class="fragment">
-<div class="sourceCode" id="cb16" data-code-line-numbers="1-20|1-4|5-6|12-13"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb16-1"><a href=""></a><span class="kw">auto</span> acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_config<span class="op">(</span><span class="at">const</span> acmu<span class="op">::</span>config<span class="op">::</span>Keys key<span class="op">)</span> <span class="at">const</span> <span class="op">-&gt;</span> conf_value <span class="op">{}</span></span>
-<span id="cb16-2"><a href=""></a><span class="kw">auto</span> acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_config<span class="op">(</span><span class="at">const</span> acmu<span class="op">::</span>config<span class="op">::</span>Flags key<span class="op">)</span> <span class="at">const</span> <span class="op">-&gt;</span> conf_flag <span class="op">{}</span></span>
-<span id="cb16-3"><a href=""></a><span class="kw">auto</span> acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_config<span class="op">(</span><span class="at">const</span> acmu<span class="op">::</span>config<span class="op">::</span>Names key<span class="op">)</span> <span class="at">const</span> <span class="op">-&gt;</span> conf_names <span class="op">{}</span></span>
-<span id="cb16-4"><a href=""></a><span class="kw">auto</span> acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_config<span class="op">(</span><span class="at">const</span> acmu<span class="op">::</span>config<span class="op">::</span>Floats key<span class="op">)</span> <span class="at">const</span> <span class="op">-&gt;</span> conf_floats <span class="op">{</span></span>
-<span id="cb16-5"><a href=""></a>    <span class="cf">return</span> get_config_impl<span class="op">&lt;</span>conf_floats_arr<span class="op">,</span> conf_floats<span class="op">&gt;(</span></span>
-<span id="cb16-6"><a href=""></a>        acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>config_floats<span class="op">,</span> key<span class="op">);</span></span>
-<span id="cb16-7"><a href=""></a><span class="op">}</span></span>
-<span id="cb16-8"><a href=""></a></span>
-<span id="cb16-9"><a href=""></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> CONFS<span class="op">,</span> <span class="kw">typename</span> CONF<span class="op">,</span> <span class="kw">typename</span> KEY<span class="op">&gt;</span></span>
-<span id="cb16-10"><a href=""></a><span class="kw">auto</span> acmu<span class="op">::</span>config<span class="op">::</span>Handler<span class="op">::</span>get_config_impl<span class="op">(</span><span class="at">const</span> CONFS <span class="op">&amp;</span>confs<span class="op">,</span></span>
-<span id="cb16-11"><a href=""></a>                                            <span class="at">const</span> KEY key<span class="op">)</span> <span class="at">const</span> <span class="op">-&gt;</span> CONF <span class="op">{</span></span>
-<span id="cb16-12"><a href=""></a>    <span class="cf">return</span> <span class="op">*</span><span class="bu">std::</span>find_if<span class="op">(</span>confs<span class="op">.</span>begin<span class="op">(),</span> confs<span class="op">.</span>end<span class="op">(),</span></span>
-<span id="cb16-13"><a href=""></a>                         <span class="op">[</span>key<span class="op">](</span><span class="at">const</span> <span class="kw">auto</span> conf<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> key <span class="op">==</span> conf<span class="op">.</span>key<span class="op">;</span> <span class="op">});</span></span>
-<span id="cb16-14"><a href=""></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<aside class="notes">
-<ul>
-<li>overloads for each type to select the right database and hide templates</li>
-</ul>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
+
 <section id="database-approach-workflow" class="slide level2">
 <h2>Database approach — workflow</h2>
 
@@ -1002,7 +927,7 @@
 <h2>Take aways</h2>
 <div>
 <ul>
-<li class="fragment">Data tables by type <em>vs.</em> all data in one table
+<li class="fragment">Data tables with key &amp; value pairs <em>vs.</em> all data in one table
 <ul>
 <li class="fragment">less conditionals and branching</li>
 <li class="fragment">generalized workflow is easier</li>
@@ -1016,7 +941,7 @@
 <li class="fragment">Size vs.&nbsp;speed vs.&nbsp;maintainability</li>
 <li class="fragment">Compiler support via <strong>static_asserts</strong> and <strong>-Werror=switch</strong></li>
 <li class="fragment">CppCheck &amp; clang-tidy</li>
-<li class="fragment">automatic refactorings with clang-tidy</li>
+<li class="fragment">Automatic refactorings with clang-tidy</li>
 </ul>
 </div>
 </section>
