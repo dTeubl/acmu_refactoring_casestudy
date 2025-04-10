@@ -1,0 +1,758 @@
+---
+title: "The evolution of a configuration system for UAV actuator monitoring: a refactoring case study"
+#subtitle: "A refactoring case study"
+#author: Daniel Teubl
+#ate: last-modified
+format: clean-revealjs
+revealjs:
+    slide-number: true
+    navigation-mode: linear
+    controls-layout: bottom-right
+    controls-tutorial: true
+    margin: 0.01
+    footer: "quarto, revealjs presentaion"
+    center: true
+    toc: true
+    toc-depth: 1
+    code-fold: true
+    show-slide-number: all
+    preview-links: auto
+    incremental: true
+    auto-stretch: true
+    self-contained: false
+---
+
+## {.stretch}
+
+:::: {.extrapad}
+- Research Assistant at Chair of Aircraft Design, TUM
+- UAV systems, flight testing
+- Bare-metal applications with C
+- C++ Applications, testing toolchains
+- Reading & making coffee
+- My journey to modern C++
+
+![](figs/me.png){.absolute top="120" right="100" width="250"}
+
+::::
+
+## Chair of Aircraft Design, TUM, Prof. Mirko Hornung {.stretch}
+::: {.extrapad}
++ Research in Aircraft Design releated topics
++ Aircraft Design tool development - UNICADO [link](https://unicado.pages.rwth-aachen.de/unicado.gitlab.io/)
++ Design Build and Fly different UAV's
++ Custom sensors and monitoring systems
+:::
+
+## {.stretch}
+![](figs/lls_toys.jpg){}
+
+## {.stretch visibility="hidden"}
+![](figs/lls_toys.jpg){.absolute top="120" right="100" width="550"}
+
+::: {.notes}
++ At LLS we cover reasearch and teaching from aircraft design, aircraft operations, some of us are involved with the development of an opensource aircaft design tool
++ We Design, Build and Fly different UAV's
+:::
+
+# Content
+
+# Content
+
+:::: {.extrapad}
++ System 
++ Configuration file --- Baseline
++ Configuration file --- Iterative approach
++ Configuration file --- Database approach 
++ Take aways
+::::
+
+## The System --- Actuator Control and Monitoring Unit {.stretch }
+
+::: {.fragment}
+![](figs/acmu_block_diagram.png){.absolute top="75" left="0" width="635"}
+
+:::
+
+::: {.fragment}
+![](figs/acmu_top_clean.jpg){ .absolute top="75" right="0" width="350"}
+
+![](figs/acmu_bot_clean.jpg){ .absolute bottom="75" right="0" width="350"}
+
+::: 
+
+## The System --- Test UAV {.stretch }
+
+![](figs/takeoff_sm.png){.absolute top="75" left="0"}
+
+![](figs/takeoff_hl.png){.fragment .absolute top="75" left="0"}
+
+![](figs/dg800_elev_acmu_sm.png){.absolute .fragment bottom="0" left="0" width="500"}
+
+![](figs/cables.png){.absolute .fragment bottom="50" right="50" width="550"}
+
+
+::: {.notes}
++ 6m wingspan, 22kg TOW
++ 6 actuator monitored
++ I2C sensors
+    + control surface and servo shaft pozition
+    + Temperature sensros with external ADC
++ USB slot for connection
++ SD-Card for data storage
+
+:::
+
+# Baseline
+
+## Baseline {.stretch .r-stack .center}
+
+v1.1 --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20|3-4|5|13|1-20"}
+// Configure sensors
+SysRuntime Runtime_Sensor("time_ms");
+AS5600 RPS_Sensor{&ext_sensors, 0x36<<1, "rps_raw"};
+//AS5600 RPS_Sensor{&ext_sensors, 0x4A<<1, "rps_raw"};
+Analog servo_current_sensor(CURR_SENS_PIN, 10 * (1.5 + 3.9) / 3.9 , "current", 1, 0.360);
+Analog voltage_sensor(VOLT_SENSE_PIN, 16.2/6.2, "voltage");
+Analog int_temp_sensor(ADC_TEMP, 1, "internal_temperature");
+//LTC2305 ltc2305(&ext_sensors, 1, "ltc2305_ch1", LTC2305_I2C_ADDRESS_1);
+LTC2305 ltc2305(&ext_sensors, 1, "ltc2305_ch1", LTC2305_I2C_ADDRESS_9);
+
+int main(){
+
+	LogManager activity_log(sensor_list, &sd_card_fs, 5ms);
+
+}
+
+```
+
+:::
+
+:::{.notes}
++ Part of the main.cpp
+
++ Parameters as magic values at compile time
+
++ Sensor configuration via comments
+
++ Leaking system information - actual values of the votage divided
+
++ Sensors as direct globals in main
+
++ Testing toolchain is evolved along with the system.
+:::
+
+
+
+
+
+# Iterative approach
+
+## Proof of concept {.stretch .r-stack .center}
+v1.3-23-g5bd85fa --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20|1,4-9,14|3"}
+    SystemConfig sysConfig{&sdWrapper, "/sd/config.txt"};
+
+#warning("Refactor needed here!");
+    auto normalBlinkTime{500};
+    if (SystemConfig::State::OK == sysConfig.BufferFileContent()) {
+        sysConfig.CleanContent();
+        normalBlinkTime = sysConfig.readValueOf("StatusOKBlink");
+    }
+    std::chrono::milliseconds temp{normalBlinkTime};
+
+    statusRGBLed.set(Color::red, 0);
+    while (true) {
+        statusRGBLed.toggle(Color::green);
+        ThisThread::sleep_for(temp);
+    }
+}
+
+```
+
+:::
+
+
+## The configuration file {.stretch .r-stack .center}
+
+v1.3-49-ge5e37b4 -- config.txt
+
+::: {.fragment}
+```{.txt code-line-numbers="1-20|5,6|8,10"}
+#non empty file
+#And an other non-epyt line
+#
+
+SamplingTime, 5000, us
+StatusOKBlink, 500, ms
+# Fake Current sensor, Should change to proper values
+CurrentSensor,Fake, 10, 1, 0.5, 3.3
+# Fake voltage sensor, change is
+VoltageSensor,FakeV, 10, 1, 0.5, 3.3
+# Fake Internal Sensor
+InternalTemp,FakeTemp, 10, 1, 0.5, 3.3
+
+#newcommenthere
+```
+:::
+
+
+## Generalization {.stretch .r-stack .center}
+
+v1.3-49-ge5e37b4 --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20|3|4-9|11-13,17"}
+    if (SystemConfig::State::OK == configFileState) {
+        // If there is no config file present, just run along!
+        sysConfig.CleanContent();
+        defaults.status.set_blink_time(
+            sysConfig.readValueOf(ConfigFileKeys::blink_time));
+        ...
+        defaults.current_sensor = 
+            sysConfig.readInAnalogSensor(ConfigFileKeys::current_sensor);
+    }
+
+    Analog servo_current_sensor(CURR_SENS_PIN, defaults.current_sensor.gain,
+                                defaults.current_sensor.name.c_str(), 1,
+                                defaults.current_sensor.offset);
+
+    while (true) {
+
+        ThisThread::sleep_for(defaults.status.blink_time);
+    }
+}
+
+```
+
+::: 
+
+::: {.notes}
+
++ Check for valid config file
++ Clean up it's content
++ Update each value in global variables
++ Use updated values
+
+:::
+
+## Iterative approach --- workflow {.stretch .center}
+
+![](figs/uml/iterative_workflow.svg){ fig-align="center"}
+
+
+## Last version {.stretch .r-stack .center}
+
+v1.11-200-g2cfe45b --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20|3,5|9-12"}
+int main() {
+
+    load_configurations(&sdWrapper, &sd_lock, defaults);
+
+    init_sensors(defaults, sensor_list);
+
+    while (true) {
+        ThisThread::sleep_for(defaults.usb_data_stream_interval);
+        if (defaults.feature_flags.data_stream_enabled())
+            usb_protokol::req::sensor_data(defaults.feature_flags, usb,
+                                           sensor_collection);
+    }
+}
+```
+
+:::
+
+
+## Last version {.stretch .r-stack .center}
+
+v1.11-200-g2cfe45b --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20|5|7|8"}
+void load_configurations(SD_Card_Wrapper *psd_wrapper, acmu::SD_lock *psd_lock,
+                         acmu::Defaults &defs) {
+    FileHandler sysconfig_file{acmu::constants::config_file_path, psd_wrapper,
+                               psd_lock};
+    SystemConfig sysConfig{&sysconfig_file};
+
+    acmu::configure_system(sysConfig, defs);
+    global.pat_watchdog();
+}
+```
+:::
+
+## Last version {.stretch .r-stack .center visibility="hidden"}
+
+v1.11-200-g2cfe45b --- main.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20"}
+void init_sensors(acmu::Defaults &defaults,
+                  std::vector<std::shared_ptr<Sensor>> &_list) {
+    // Current consumption in [mA]
+    setup_analog_sensor(defaults.current_sensor, _list);
+
+    // voltage sensor setup [mV]
+    setup_analog_sensor(defaults.voltage_sensor, _list);
+
+    // servo rps
+    auto pRPS_servo = create_rps(&i2c_interface, defaults.servo_rps);
+    setup_rps(pRPS_servo, defaults.servo_rps, _list);
+
+    // rps_flap_a setup
+    auto pRPS_flap_a = create_rps(&i2c_interface, defaults.flap_a_rps);
+    setup_rps(pRPS_flap_a, defaults.flap_a_rps, _list);
+}
+```
+:::
+
+## Last version {.stretch .r-stack .center}
+
+v1.11-200-g2cfe45b -- ./libs/sys_config.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-20"}
+void acmu::configure_system(const SystemConfig &sysConfig,
+                            acmu::Defaults &defaults, acmu::USB &_usb) {
+    usign anmespace acmu::sysconfig_details;
+
+    update_global_sampling_time(sysConfig, defaults);
+    update_logger_sample_time(sysConfig, defaults);
+    update_blinktime(sysConfig, defaults);
+    update_current_sensor_parameters(sysConfig);
+    update_voltage_sensor_parameters(sysConfig);
+
+    ...
+
+    update_usb_data_stream_interval(sysConfig, defaults);
+    update_usb_data_stream(sysConfig, defaults.feature_flags);
+}
+```
+
+:::
+
+::: {.notes}
++ Free functions for testability
+
++ Individual functions are to hide actual implementation and connect together sysconfig class and the defaults global data structure
+
+:::
+
+
+## Last version {.stretch .r-stack .center}
+
+v1.11-200-g2cfe45b --- config.txt
+
+::: {.fragment}
+
+```{.cpp code-line-numbers="1-20|5-7|1-2,10,15,17|8,9,11-14,16,18"}
+SamplingTime, 5000, us
+DatalogSampleTime, 5, ms
+# Key,name, R1, R2, offset, reference voltage
+# General current sensor parameters, validated with ACMUv1000
+CurrentSensor,current_mA, 1.5, 3.9, 0.420, 3.33
+ServoPWM, 20000, 1000, 2000, 1500
+EXT, RPS_Servo, servo_pos, 54, 1.0, true
+EnableServo, true
+EnableDataLog, true
+DataLogBuffer, 12500
+EnableRPSInstall, false
+EnableForceRestart, false
+EnableUSB, false
+EnableLogfileNameUpdate, false
+LogfileNameUpdateInterval, 1200, [sec]
+EnableVoltageSensorBuffer, true
+VoltageSensorBufferSize, 10
+EnableServoCurrentBuffer, true
+```
+
+:::
+
+
+## Last version --- problems
+
+:::: incremental
+- Code change
+    - Boilerplate and copy-pasta for new values
+    - Many steps and repetitions
+    - No compiler support to enforce correct change
+- Slow
+    - One iteration for each parameter
+    - *WatchDogy.pat()*
+- Only manual configuration file change
+- Configuration schema reflects domain
+::::
+
+::: {.notes}
+- Domain leakage, one needs to knos the resistor placement to configure gain 
+:::
+
+# Database approach 
+
+## Design changes
+
+:::: incremental
+- USB functionalities are avaiable
+    - FW update, data streaming and feature flags
+- Test UAV retrofitting is ready
+    - Multiple measurement point with variable hardware setup
+- Configuration approach
+    - Configuration file generation
+    - Simple key & value pairs, value based data tables
+    - Templates and function overloads
+    - Compiler support to enforce each key is used
+    - Minimal modification to add new parameters
+    - Support for integration tests
+::::
+
+## Data tables {.stretch .center}
+
+![](figs/uml/data_tables.svg){width="250"}
+
+::: {.fragment}
+```{.cpp}
+static_assert(acmu::config::consts::num_of_keys <=
+              acmu::config::type_limits::max_num_of_keys);
+```
+:::
+
+## Data tables {.stretch .r-stack .center}
+v1.12-58-g080c673 --- ./inc/config_handler_types.h
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-50|1-7|9-16|23-24|26-36"}
+enum class Keys : uint8_t {
+    blink_time = type_limits::min_num_of_keys,
+    buffer_size,
+    sampling_time,
+
+    not_used // keep this as the last value for statis boundary check
+};
+
+struct conf_value {
+    Keys key{Keys::not_used};
+    uint32_t current{};
+    uint32_t def{};
+    uint32_t min{};
+    uint32_t max{};
+    std::string tag{};
+};
+
+// inc/config_handler.h
+namespace consts {
+constexpr uint8_t num_of_keys{13};
+}
+
+using conf_values = 
+    std::array<acmu::config::conf_value, consts::num_of_keys>;
+
+static_assert(acmu::config::consts::num_of_keys <=
+              acmu::config::type_limits::max_num_of_keys);
+
+static_assert((acmu::config::type_limits::max_num_of_keys +
+               acmu::config::type_limits::max_num_of_flags +
+               acmu::config::type_limits::max_num_of_floats +
+               acmu::config::type_limits::max_num_of_names) <= UINT8_MAX);
+
+```
+:::
+
+::: {.notes}
++ 50-60 itemes are configurable , 255 is enough for a long time
+
++ Custom struct for each value
+
++ std::array at for each type, Fixed size, and known at compile time, does not extend at runtime
+
++ Compile time checks for size of arrays, number of element in each arrays...
+::: 
+
+## Configuration change {.stretch .r-stack .center}
+
+v1.12-58-g080c673 --- main.cpp
+
+::: {.fragment}
+
+```{.cpp code-line-numbers="1-20|2|5-7|9|4,14|16"}
+
+acmu::config::Handler new_conf{&defaults};
+
+{
+    FileHandler sysconfig_file{acmu::constants::config_file_path,
+                               &sdWrapper, &sd_lock};
+    auto config_content = sysconfig_file.read_cfile();
+
+    new_conf.update(config_content);
+
+    std::stringstream stream{acmu::config::Handler::get_all_config()};
+    for (std::string line; std::getline(stream, line);)
+        systemlog.append(line);
+}
+
+init_sensors(defaults, sensor_list);
+
+while(true) { }
+
+```
+:::
+
+::: {.notes}
++ Actual config file usage
+
++ file content reading and usage is separated
+
++ Scoped operation - cleaning up FileHandler with RAII
+
++ Sensors initialization in a function call, based on updated global variables
+::: 
+
+
+
+## Configuration change --- via string{ .stretch .r-stack .center}
+
+v1.12-58-g080c673 --- ./src/config_handler.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-40|6,10-14"}
+void acmu::config::Handler::update(const std::string str) {
+    std::string line{};
+    std::stringstream stream{};
+    stream << str;
+
+    while (std::getline(stream, line)) {
+
+        // identifying *tag* and *value* from *line*
+
+        const auto key = key_from<Keys>(config_ints, tag);
+        if (Keys::not_used != key) {
+            const auto result = static_cast<uint32_t>(std::stol(value));
+            change(key, result);
+        }
+        ...
+
+    }
+}
+
+```
+:::
+
+## Configuration change { .stretch .r-stack .center}
+v1.12-58-g080c673 --- ./src/config_handler.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-40|1-4|5-6|8-9|11|16,17,23"}
+void acmu::config::Handler::change(const acmu::config::Floats key, const float value) {
+void acmu::config::Handler::change(const acmu::config::Names key, const std::string &value) {
+void acmu::config::Handler::change(const acmu::config::Flags key, bool value) {
+void acmu::config::Handler::change(const acmu::config::Keys key, uint32_t value) {
+    auto *conf = std::find_if(config_ints.begin(), config_ints.end(),
+                              [key](auto conf) { return key == conf.key; });
+
+    if (acmu::config::boundary_check(conf, value))
+        conf->current = value;
+
+    change_impl(key, get_config_value<uint32_t>(key));
+}
+
+void acmu::config::Handler::change_impl(const acmu::config::Keys key,
+                                        uint32_t value) {
+    switch (key) {
+    case Keys::blink_time:
+        defs->status.set_blink_time(value);
+        break;
+
+    ...
+
+    case Keys::not_used:
+        break;
+    }
+}
+```
+:::
+
+::: {.notes}
++ Overload for each table
+
++ Find the right config based on the key
+
++ boundary check
+
++ implementaiton
+
++ Switch statement with compiler support
+:::
+
+## Parameter update  --- via USB{.stretch .r-stack .center}
+v1.12-58-g080c673 --- ./src/usb_protokol.cpp
+
+::: {.fragment}
+```{.cpp code-line-numbers="1-40|4"}
+template <typename KEY, typename VALUE>
+void update(acmu::config::Handler *conf, acmu::USB *usb, const KEY &key,
+            const VALUE &value) {
+    conf->change(key, value);
+    usb->send("ACK: " + conf->get_config(key).tag + " changed");
+}
+```
+
+:::
+
+
+
+## Parameter request {.stretch .r-stack .center}
+v1.12-58-g080c673 --- ./src/config_handler.cpp
+
+::: {.fragment}
+
+```{.cpp code-line-numbers="1-20|1-4|5-6|12-13"}
+auto acmu::config::Handler::get_config(const acmu::config::Keys key) const -> conf_value {}
+auto acmu::config::Handler::get_config(const acmu::config::Flags key) const -> conf_flag {}
+auto acmu::config::Handler::get_config(const acmu::config::Names key) const -> conf_names {}
+auto acmu::config::Handler::get_config(const acmu::config::Floats key) const -> conf_floats {
+    return get_config_impl<conf_floats_arr, conf_floats>(
+        acmu::config::Handler::config_floats, key);
+}
+
+template <typename CONFS, typename CONF, typename KEY>
+auto acmu::config::Handler::get_config_impl(const CONFS &confs,
+                                            const KEY key) const -> CONF {
+    return *std::find_if(confs.begin(), confs.end(),
+                         [key](const auto conf) { return key == conf.key; });
+}
+```
+:::
+
+::: {.notes}
++ overloads for each type to select the right database and hide templates
+::: 
+
+
+## Database approach --- workflow
+
+![](figs/uml/database_workflow.svg){ fig-align="center"}
+
+## Workflow comparison {.stretch .r-stack}
+
+![](figs/uml/iterative_workflow.svg){.absolute left="100"}
+
+![](figs/uml/database_workflow.svg){.absolute right="100"}
+
+# Take aways
+
+## Size comparison
+
+:::: {.extrapad}
+| module | v1.11-200 | v1.12-58 | diff |
+|:------:|:---------:|:--------:|:----:|
+| Sys config | 7k       | 0  | -7k
+| Config h | 0          | 4.2k  | +4.2k
+| Config h. arrays | 0  | 1k  | +1k*
+| globals | 3k          | 1.4k | -1.6k
+| libc++ | 120.2k  |  118.9k | -2.3k
+| sum | **130.2k **    |  **125.5k** | -5.7k
+|  |     |  | 
+|  |     |  | 
+| runtime | 1.1ms    |  5.4ms | +3ms 
+
+
+::::
+
+
+
+
+::: {.notes}
++ Reduction in code size
+
++ 1k of memory usage increase
+:::
+
+## Float to string is expensive {.stretch .r-stack .center visibility="hidden" }
+
+```{.cpp}
+auto utility::float_to_string(float value) -> std::string {
+    const auto shift{100.0F};
+    const auto exp = static_cast<uint32_t>(value);
+    std::string exponent = std::to_string(exp);
+
+    std::string mantissa =
+        std::to_string(static_cast<uint32_t>((value - exp) * shift));
+
+    return exponent + "." + mantissa;
+}
+```
+
+## Float to string is expensive {.stretch .r-stack .center visibility="hidden" }
+
+```{.cpp}
+auto utility::float_to_string(const float value) -> std::string {
+    constexpr auto shift{100.0F};
+    const auto exp = static_cast<uint32_t>(value);
+    const std::string exponent = std::to_string(exp);
+
+    const std::string mantissa =
+        std::to_string(static_cast<uint32_t>((value - exp) * shift));
+
+    return exponent + "." + mantissa;
+}
+```
+
+## Take aways
+
+:::: incremental
+- Data tables by type *vs.* all data in one table
+    - fast iteration in each tables, less conditionals
+- Templates, overaloads, algorithms, lambads
+    - one enables and encourages the other
+    - less code to write
+    - 120-150bytes increase per **std::find_if()**
+- Slower
+- Compiler support via **static_asserts** and **-Werror=switch**
+- CppCheck & clang-tidy 
+- automatic refactorings with clang-tidy
+::::
+
+## References {.smalllist}
+:::: li 
+- Data-Oriented Design, R. Fabian [link](https://www.dataorienteddesign.com/dodbook/)
+- Refactoring, Martin Fowler [link](https://martinfowler.com/books/refactoring.html)
+- C++ Software Design, Klaus Iglberger [link](https://www.oreilly.com/library/view/c-software-design/9781098113155/)
+- Hands-On Design Patterns with C++, Fedor G. Pikus, [link](https://www.oreilly.com/library/view/hands-on-design-patterns/9781788832564/)
+- Test-Driven Development for Embedded C, James W. Grenning [link](https://pragprog.com/titles/jgade/test-driven-development-for-embedded-c/)
+- Modern C++ Programming with Test-Driven Development, Jeff Langr [link](https://pragprog.com/titles/lotdd/modern-c-programming-with-test-driven-development/)
+- Continious Delivery, J. Humble, D. Farley [link](ihttps://www.pearson.de/continuous-delivery-reliable-software-releases-through-build-test-and-deployment-automation-9780321601919)
+- Better Embedded System Software, P. Koopman [link](https://betterembsw.blogspot.com/2010/05/test-post.html)
+- Modern Software Engineering, Dave Farley [link](https://www.pearson.de/modern-software-engineering-doing-what-works-to-build-better-software-faster-9780137314867)
+- Extreme Programming Explained, Kent Beck [link](https://www.pearson.de/extreme-programming-explained-embrace-change-9780134051994)
+- Embedded Software Development for Safety-Critical Systems, Hobbs, Chris [link](https://www.buecher.de/artikel/buch/embedded-software-development-for-safety-critical-systems-second-edition/57457616)
+- Clean Code, Robert C. Martin [link](https://www.oreilly.com/library/view/clean-code-a/9780136083238/)
+::::
+
+## 
+
+
+:::: {.columns}
+::: {.column width="50%"}
+
+<center>
+Software source code
+
+![](figs/qr_acmu_repo.png){width="400"}
+</center>
+:::
+
+::: {.column width="50%"}
+<center>
+Slides
+
+![](figs/qr_slides.png){width="400"}
+</center>
+:::
+::::
+

@@ -1,0 +1,15 @@
+*   text=auto
+
+*.pdf -diff
+*.mp4 -diff
+*.png -diff
+*.eps -diff
+*.svg -diff
+
+# ensure generated content is tracked and stored, but no diffs are made
+*.html -diff
+*.js -diff
+*.css -diff
+*.yml -diff
+*.map -diff
+

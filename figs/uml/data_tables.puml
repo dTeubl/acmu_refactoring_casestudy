@@ -1,0 +1,25 @@
+@startuml
+
+!theme reddress-darkorange
+!theme reddress-lightblue
+
+database Values [
+std::array<config_value,num_of_keys>
+====
+config_value{Keys::blink_time, ...}
+config_value{Keys::buffer_size,...}
+---
+config_value{Keys::small_fiel_buffer,...}
+]
+
+card Key [
+enum class Keys
+====
+blink_time=0,
+buffer_size,
+----
+small_file_buffer,
+not_used,
+]
+
+@enduml

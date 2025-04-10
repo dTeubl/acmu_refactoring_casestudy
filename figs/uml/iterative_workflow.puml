@@ -1,0 +1,23 @@
+@startuml
+
+!theme reddress-lightblue
+
+
+:clean content;
+partition "update_parameter" {
+repeat
+repeat
+:read line;
+if (tag found) then (yes)
+    :decode values;
+    :update parameter;
+    break
+endif
+
+repeat while (end of buffer) is (no) not (yes)
+
+repeat while (more parameters) is (yes) not (no)
+}
+
+:use configuratoins;
+@enduml

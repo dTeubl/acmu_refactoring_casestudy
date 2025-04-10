@@ -1,0 +1,4 @@
+.rotate-img90 img{
+    transform: rotate(90deg);
+}
+

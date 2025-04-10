@@ -1,0 +1,16 @@
+@startuml
+
+!theme reddress-lightblue
+
+:clean content;
+partition "update_parameter" {
+repeat
+:read line;
+:select data table by tag;
+:select value in table;
+:validate value;
+:update value;
+repeat while (end of buffer) is (no) not (yes)
+}
+:use configuratoins;
+@enduml
