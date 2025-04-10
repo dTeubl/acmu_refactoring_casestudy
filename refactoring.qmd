@@ -34,6 +34,8 @@ revealjs:
 
 ![](figs/me.png){.absolute top="120" right="100" width="250"}
 
+![](figs/preview.png){.absolute bottom="20" right="120" width="200"}
+
 ::::
 
 ## Chair of Aircraft Design, TUM, Prof. Mirko Hornung {.stretch}
@@ -383,9 +385,8 @@ EnableServoCurrentBuffer, true
     - Boilerplate and copy-pasta for new values
     - Many steps and repetitions
     - No compiler support to enforce correct change
-- Slow
-    - One iteration for each parameter
     - *WatchDogy.pat()*
+    - Many run-time problems during development
 - Only manual configuration file change
 - Configuration schema reflects domain
 ::::
@@ -712,7 +713,7 @@ auto utility::float_to_string(const float value) -> std::string {
     - one enables and encourages the other
     - less code to write
     - 120-150bytes increase per **std::find_if()**
-- Slower
+- Size vs. speed vs. maintainability
 - Compiler support via **static_asserts** and **-Werror=switch**
 - CppCheck & clang-tidy 
 - automatic refactorings with clang-tidy
