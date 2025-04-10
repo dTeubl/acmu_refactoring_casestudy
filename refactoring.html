@@ -204,21 +204,21 @@
 <li>Research Assistant at Chair of Aircraft Design, TUM</li>
 <li>UAV systems, flight testing</li>
 <li>Bare-metal applications with C</li>
-<li>C++ Applications, testing toolchains</li>
+<li>C++ Applications, test automatization</li>
 <li>Reading &amp; making coffee</li>
 <li>My journey to modern C++</li>
 </ul>
 <p><img data-src="figs/me.png" class="absolute" style="top: 120px; right: 100px; width: 250px; "></p>
-<p><img data-src="figs/preview.png" class="absolute" style="bottom: 20px; right: 120px; width: 200px; "></p>
+<p><img data-src="figs/preview.png" class="fragment absolute" style="bottom: 20px; right: 120px; width: 200px; "></p>
 </div>
 </section>
 <section id="chair-of-aircraft-design-tum-prof.-mirko-hornung" class="slide level2 stretch">
 <h2>Chair of Aircraft Design, TUM, Prof.&nbsp;Mirko Hornung</h2>
 <div class="extrapad">
 <ul>
-<li>Research in Aircraft Design releated topics</li>
-<li>Aircraft Design tool development - UNICADO <a href="https://unicado.pages.rwth-aachen.de/unicado.gitlab.io/">link</a></li>
-<li>Design Build and Fly different UAV’s</li>
+<li>Research in aircraft design releated topics</li>
+<li>Aircraft design tool development - UNICADO <a href="https://unicado.pages.rwth-aachen.de/unicado.gitlab.io/">link</a></li>
+<li>Design, build, retrofit and fly different UAV’s</li>
 <li>Custom sensors and monitoring systems</li>
 </ul>
 </div>
@@ -449,7 +449,7 @@
 <h2>Last version</h2>
 <p>v1.11-200-g2cfe45b — main.cpp</p>
 <div class="fragment">
-<div class="sourceCode" id="cb6" data-code-line-numbers="1-20|5|7|8"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb6-1"><a href=""></a><span class="dt">void</span> load_configurations<span class="op">(</span>SD_Card_Wrapper <span class="op">*</span>psd_wrapper<span class="op">,</span> acmu<span class="op">::</span>SD_lock <span class="op">*</span>psd_lock<span class="op">,</span></span>
+<div class="sourceCode" id="cb6" data-code-line-numbers="1-20|5|7|8|1-20"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb6-1"><a href=""></a><span class="dt">void</span> load_configurations<span class="op">(</span>SD_Card_Wrapper <span class="op">*</span>psd_wrapper<span class="op">,</span> acmu<span class="op">::</span>SD_lock <span class="op">*</span>psd_lock<span class="op">,</span></span>
 <span id="cb6-2"><a href=""></a>                         acmu<span class="op">::</span>Defaults <span class="op">&amp;</span>defs<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb6-3"><a href=""></a>    FileHandler sysconfig_file<span class="op">{</span>acmu<span class="op">::</span>constants<span class="op">::</span>config_file_path<span class="op">,</span> psd_wrapper<span class="op">,</span></span>
 <span id="cb6-4"><a href=""></a>                               psd_lock<span class="op">};</span></span>
@@ -578,7 +578,6 @@
 <li class="fragment">Templates and function overloads</li>
 <li class="fragment">Compiler support to enforce each key is used</li>
 <li class="fragment">Minimal modification to add new parameters</li>
-<li class="fragment">Support for integration tests</li>
 </ul></li>
 </ul>
 </div>
@@ -712,6 +711,25 @@
 <span id="cb13-17"><a href=""></a>    <span class="op">}</span></span>
 <span id="cb13-18"><a href=""></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<aside class="notes">
+<ul>
+<li>iteratre line by line</li>
+<li>coma separaterd key &amp; value pairs</li>
+<li>find which table the key blongs to</li>
+<li>find the key in the right table</li>
+<li>update the value</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
 <section id="configuration-change-1" class="slide level2 stretch r-stack center">
 <h2>Configuration change</h2>
@@ -751,6 +769,7 @@
 <li><p>boundary check</p></li>
 <li><p>implementaiton</p></li>
 <li><p>Switch statement with compiler support</p></li>
+<li><p>Direct update of the parameter in the Defaults global struct</p></li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -819,14 +838,85 @@
 <h2>Workflow comparison</h2>
 <p><img data-src="figs/uml/iterative_workflow.svg" class="absolute" style="left: 100px; "></p>
 <p><img data-src="figs/uml/database_workflow.svg" class="absolute" style="right: 100px; "></p>
+<aside class="notes">
+<ul>
+<li>Less visible branhing</li>
+<li>Reading through the buffered config file only once vs multiple times</li>
+<li>Implmenentation is well hidden,</li>
+<li>Adding new configuration less work, compiler helps</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section></section>
 <section>
 <section id="take-aways" class="title-slide slide level1 center">
 <h1>Take aways</h1>
 
 </section>
-<section id="size-comparison" class="slide level2">
-<h2>Size comparison</h2>
+<section id="comparison" class="slide level2">
+<h2>Comparison</h2>
+<div class="extrapad">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;">module</th>
+<th style="text-align: center;">v1.11-200</th>
+<th style="text-align: center;">v1.12-58</th>
+<th style="text-align: center;">diff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Sys config</td>
+<td style="text-align: center;">7k</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">-7k</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Config h</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">4.2k</td>
+<td style="text-align: center;">+4.2k</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Config h. arrays</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1k</td>
+<td style="text-align: center;">+1k*</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">globals</td>
+<td style="text-align: center;">3k</td>
+<td style="text-align: center;">1.4k</td>
+<td style="text-align: center;">-1.6k</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">libc++</td>
+<td style="text-align: center;">120.2k</td>
+<td style="text-align: center;">118.9k</td>
+<td style="text-align: center;">-2.3k</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">sum</td>
+<td style="text-align: center;"><strong>130.2k </strong></td>
+<td style="text-align: center;"><strong>125.5k</strong></td>
+<td style="text-align: center;">-5.7k</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="comparison-1" class="slide level2">
+<h2>Comparison</h2>
 <div class="extrapad">
 <table class="caption-top">
 <thead>
@@ -881,12 +971,6 @@
 <td style="text-align: center;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
-</tr>
-<tr class="odd">
 <td style="text-align: center;">runtime</td>
 <td style="text-align: center;">1.1ms</td>
 <td style="text-align: center;">5.4ms</td>
@@ -920,7 +1004,8 @@
 <ul>
 <li class="fragment">Data tables by type <em>vs.</em> all data in one table
 <ul>
-<li class="fragment">fast iteration in each tables, less conditionals</li>
+<li class="fragment">less conditionals and branching</li>
+<li class="fragment">generalized workflow is easier</li>
 </ul></li>
 <li class="fragment">Templates, overaloads, algorithms, lambads
 <ul>

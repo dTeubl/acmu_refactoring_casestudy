@@ -28,21 +28,21 @@ revealjs:
 - Research Assistant at Chair of Aircraft Design, TUM
 - UAV systems, flight testing
 - Bare-metal applications with C
-- C++ Applications, testing toolchains
+- C++ Applications, test automatization
 - Reading & making coffee
 - My journey to modern C++
 
 ![](figs/me.png){.absolute top="120" right="100" width="250"}
 
-![](figs/preview.png){.absolute bottom="20" right="120" width="200"}
+![](figs/preview.png){.fragment .absolute bottom="20" right="120" width="200"}
 
 ::::
 
 ## Chair of Aircraft Design, TUM, Prof. Mirko Hornung {.stretch}
 ::: {.extrapad}
-+ Research in Aircraft Design releated topics
-+ Aircraft Design tool development - UNICADO [link](https://unicado.pages.rwth-aachen.de/unicado.gitlab.io/)
-+ Design Build and Fly different UAV's
++ Research in aircraft design releated topics
++ Aircraft design tool development - UNICADO [link](https://unicado.pages.rwth-aachen.de/unicado.gitlab.io/)
++ Design, build, retrofit and fly different UAV's
 + Custom sensors and monitoring systems
 :::
 
@@ -277,7 +277,7 @@ int main() {
 v1.11-200-g2cfe45b --- main.cpp
 
 ::: {.fragment}
-```{.cpp code-line-numbers="1-20|5|7|8"}
+```{.cpp code-line-numbers="1-20|5|7|8|1-20"}
 void load_configurations(SD_Card_Wrapper *psd_wrapper, acmu::SD_lock *psd_lock,
                          acmu::Defaults &defs) {
     FileHandler sysconfig_file{acmu::constants::config_file_path, psd_wrapper,
@@ -410,7 +410,6 @@ EnableServoCurrentBuffer, true
     - Templates and function overloads
     - Compiler support to enforce each key is used
     - Minimal modification to add new parameters
-    - Support for integration tests
 ::::
 
 ## Data tables {.stretch .center}
@@ -542,7 +541,18 @@ void acmu::config::Handler::update(const std::string str) {
 }
 
 ```
+
 :::
+
+::: {.notes}
++ iteratre line by line
++ coma separaterd key & value pairs
++ find which table the key blongs to
++ find the key in the right table
++ update the value
+:::
+
+
 
 ## Configuration change { .stretch .r-stack .center}
 v1.12-58-g080c673 --- ./src/config_handler.cpp
@@ -588,6 +598,8 @@ void acmu::config::Handler::change_impl(const acmu::config::Keys key,
 + implementaiton
 
 + Switch statement with compiler support
+
++ Direct update of the parameter in the Defaults global struct
 :::
 
 ## Parameter update  --- via USB{.stretch .r-stack .center}
@@ -645,9 +657,31 @@ auto acmu::config::Handler::get_config_impl(const CONFS &confs,
 
 ![](figs/uml/database_workflow.svg){.absolute right="100"}
 
+
+::: {.notes}
++ Less visible branhing
++ Reading through the buffered config file only once vs multiple times
++ Implmenentation is well hidden,
++ Adding new configuration less work, compiler helps
+:::
+
 # Take aways
 
-## Size comparison
+## Comparison
+
+:::: {.extrapad}
+| module | v1.11-200 | v1.12-58 | diff |
+|:------:|:---------:|:--------:|:----:|
+| Sys config | 7k       | 0  | -7k
+| Config h | 0          | 4.2k  | +4.2k
+| Config h. arrays | 0  | 1k  | +1k*
+| globals | 3k          | 1.4k | -1.6k
+| libc++ | 120.2k  |  118.9k | -2.3k
+| sum | **130.2k **    |  **125.5k** | -5.7k
+
+::::
+
+## Comparison
 
 :::: {.extrapad}
 | module | v1.11-200 | v1.12-58 | diff |
@@ -659,12 +693,9 @@ auto acmu::config::Handler::get_config_impl(const CONFS &confs,
 | libc++ | 120.2k  |  118.9k | -2.3k
 | sum | **130.2k **    |  **125.5k** | -5.7k
 |  |     |  | 
-|  |     |  | 
 | runtime | 1.1ms    |  5.4ms | +3ms 
 
-
 ::::
-
 
 
 
@@ -708,7 +739,8 @@ auto utility::float_to_string(const float value) -> std::string {
 
 :::: incremental
 - Data tables by type *vs.* all data in one table
-    - fast iteration in each tables, less conditionals
+    - less conditionals and branching
+    - generalized workflow is easier
 - Templates, overaloads, algorithms, lambads
     - one enables and encourages the other
     - less code to write
