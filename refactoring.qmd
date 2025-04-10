@@ -693,7 +693,7 @@ auto acmu::config::Handler::get_config_impl(const CONFS &confs,
 | libc++ | 120.2k  |  118.9k | -2.3k
 | sum | **130.2k **    |  **125.5k** | -5.7k
 |  |     |  | 
-| runtime | 1.1ms    |  5.4ms | +3ms 
+| runtime | 1.1ms    |  5.4ms | +4ms 
 
 ::::
 
