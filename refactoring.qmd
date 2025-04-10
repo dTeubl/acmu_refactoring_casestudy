@@ -272,7 +272,7 @@ int main() {
 :::
 
 
-## Last version {.stretch .r-stack .center}
+## Last version {.stretch .r-stack .center visibility="hidden"}
 
 v1.11-200-g2cfe45b --- main.cpp
 
@@ -348,7 +348,7 @@ void acmu::configure_system(const SystemConfig &sysConfig,
 :::
 
 
-## Last version {.stretch .r-stack .center}
+## Last version {.stretch .r-stack .center visibility="hidden"}
 
 v1.11-200-g2cfe45b --- config.txt
 
@@ -406,7 +406,7 @@ EnableServoCurrentBuffer, true
     - Multiple measurement point with variable hardware setup
 - Configuration approach
     - Configuration file generation
-    - Simple key & value pairs, value based data tables
+    - Simple key & value pairs, type based data tables
     - Templates and function overloads
     - Compiler support to enforce each key is used
     - Minimal modification to add new parameters

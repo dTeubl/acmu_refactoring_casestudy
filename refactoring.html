@@ -445,21 +445,7 @@
 <span id="cb5-13"><a href=""></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="last-version-1" class="slide level2 stretch r-stack center">
-<h2>Last version</h2>
-<p>v1.11-200-g2cfe45b — main.cpp</p>
-<div class="fragment">
-<div class="sourceCode" id="cb6" data-code-line-numbers="1-20|5|7|8|1-20"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb6-1"><a href=""></a><span class="dt">void</span> load_configurations<span class="op">(</span>SD_Card_Wrapper <span class="op">*</span>psd_wrapper<span class="op">,</span> acmu<span class="op">::</span>SD_lock <span class="op">*</span>psd_lock<span class="op">,</span></span>
-<span id="cb6-2"><a href=""></a>                         acmu<span class="op">::</span>Defaults <span class="op">&amp;</span>defs<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-3"><a href=""></a>    FileHandler sysconfig_file<span class="op">{</span>acmu<span class="op">::</span>constants<span class="op">::</span>config_file_path<span class="op">,</span> psd_wrapper<span class="op">,</span></span>
-<span id="cb6-4"><a href=""></a>                               psd_lock<span class="op">};</span></span>
-<span id="cb6-5"><a href=""></a>    SystemConfig sysConfig<span class="op">{&amp;</span>sysconfig_file<span class="op">};</span></span>
-<span id="cb6-6"><a href=""></a></span>
-<span id="cb6-7"><a href=""></a>    acmu<span class="op">::</span>configure_system<span class="op">(</span>sysConfig<span class="op">,</span> defs<span class="op">);</span></span>
-<span id="cb6-8"><a href=""></a>    global<span class="op">.</span>pat_watchdog<span class="op">();</span></span>
-<span id="cb6-9"><a href=""></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
+
 
 <section id="last-version-3" class="slide level2 stretch r-stack center">
 <h2>Last version</h2>
@@ -498,30 +484,7 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="last-version-4" class="slide level2 stretch r-stack center">
-<h2>Last version</h2>
-<p>v1.11-200-g2cfe45b — config.txt</p>
-<div class="fragment">
-<div class="sourceCode" id="cb9" data-code-line-numbers="1-20|5-7|1-2,10,15,17|8,9,11-14,16,18"><pre class="sourceCode numberSource cpp number-lines code-with-copy"><code class="sourceCode cpp"><span id="cb9-1"><a href=""></a>SamplingTime<span class="op">,</span> <span class="dv">5000</span><span class="op">,</span> us</span>
-<span id="cb9-2"><a href=""></a>DatalogSampleTime<span class="op">,</span> <span class="dv">5</span><span class="op">,</span> ms</span>
-<span id="cb9-3"><a href=""></a><span class="pp"># </span><span class="er">Key,name, R1, R2, offset, reference voltage</span></span>
-<span id="cb9-4"><a href=""></a><span class="pp"># </span><span class="er">General current sensor parameters, validated with ACMUv1000</span></span>
-<span id="cb9-5"><a href=""></a>CurrentSensor<span class="op">,</span>current_mA<span class="op">,</span> <span class="fl">1.5</span><span class="op">,</span> <span class="fl">3.9</span><span class="op">,</span> <span class="fl">0.420</span><span class="op">,</span> <span class="fl">3.33</span></span>
-<span id="cb9-6"><a href=""></a>ServoPWM<span class="op">,</span> <span class="dv">20000</span><span class="op">,</span> <span class="dv">1000</span><span class="op">,</span> <span class="dv">2000</span><span class="op">,</span> <span class="dv">1500</span></span>
-<span id="cb9-7"><a href=""></a>EXT<span class="op">,</span> RPS_Servo<span class="op">,</span> servo_pos<span class="op">,</span> <span class="dv">54</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">,</span> <span class="kw">true</span></span>
-<span id="cb9-8"><a href=""></a>EnableServo<span class="op">,</span> <span class="kw">true</span></span>
-<span id="cb9-9"><a href=""></a>EnableDataLog<span class="op">,</span> <span class="kw">true</span></span>
-<span id="cb9-10"><a href=""></a>DataLogBuffer<span class="op">,</span> <span class="dv">12500</span></span>
-<span id="cb9-11"><a href=""></a>EnableRPSInstall<span class="op">,</span> <span class="kw">false</span></span>
-<span id="cb9-12"><a href=""></a>EnableForceRestart<span class="op">,</span> <span class="kw">false</span></span>
-<span id="cb9-13"><a href=""></a>EnableUSB<span class="op">,</span> <span class="kw">false</span></span>
-<span id="cb9-14"><a href=""></a>EnableLogfileNameUpdate<span class="op">,</span> <span class="kw">false</span></span>
-<span id="cb9-15"><a href=""></a>LogfileNameUpdateInterval<span class="op">,</span> <span class="dv">1200</span><span class="op">,</span> <span class="op">[</span>sec<span class="op">]</span></span>
-<span id="cb9-16"><a href=""></a>EnableVoltageSensorBuffer<span class="op">,</span> <span class="kw">true</span></span>
-<span id="cb9-17"><a href=""></a>VoltageSensorBufferSize<span class="op">,</span> <span class="dv">10</span></span>
-<span id="cb9-18"><a href=""></a>EnableServoCurrentBuffer<span class="op">,</span> <span class="kw">true</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
+
 <section id="last-version-problems" class="slide level2">
 <h2>Last version — problems</h2>
 <div>
@@ -574,7 +537,7 @@
 <li class="fragment">Configuration approach
 <ul>
 <li class="fragment">Configuration file generation</li>
-<li class="fragment">Simple key &amp; value pairs, value based data tables</li>
+<li class="fragment">Simple key &amp; value pairs, type based data tables</li>
 <li class="fragment">Templates and function overloads</li>
 <li class="fragment">Compiler support to enforce each key is used</li>
 <li class="fragment">Minimal modification to add new parameters</li>
